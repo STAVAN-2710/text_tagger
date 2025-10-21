@@ -53,7 +53,6 @@ class SingleWord:
             "wspread": 0.0,  # Word spread across document
             "pl": 0.0,  # Probability left
             "pr": 0.0,  # Probability right
-            "pagerank": 1.0,  # PageRank score
             # Ocurrence tracking
             "occurs": {},  # Sentence Occurrences
         }
@@ -151,28 +150,6 @@ class SingleWord:
         return self.data["occurs"]
 
     # Everything else uses the generic accessor methods
-    def get_metric(self, name):
-        """
-        Get the value of any word metric.
-
-        Args:
-            name (str): The name of the metric to retrieve
-
-        Returns:
-            float: The value of the requested metric
-        """
-        return self.data.get(name, 0.0)
-
-    def set_metric(self, name, value):
-        """
-        Set the value of any word metric.
-
-        Args:
-            name (str): The name of the metric to set
-            value (float): The new value for the metric
-        """
-        self.data[name] = value
-
     def get_graph_metrics(self):
         """
         Calculate all graph-based metrics at once.

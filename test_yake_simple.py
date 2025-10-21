@@ -13,12 +13,38 @@ def main():
 
     # Sample text
     text = """
-    Machine learning is a subset of artificial intelligence that enables
-    computers to learn from data without being explicitly programmed.
-    Deep learning, a type of machine learning, uses neural networks with
-    multiple layers to analyze complex patterns in data.
-    Natural language processing is another important area of AI that helps
-    computers understand and process human language.
+    Architecture Review Meeting - Database Selection
+Date: October 21, 2025
+
+Discussion Summary:
+Team evaluated PostgreSQL versus MongoDB for the new analytics platform. Key debate centered on data model flexibility versus transactional integrity.
+
+PostgreSQL Advantages:
+- Strong ACID compliance ensures data consistency
+- Complex SQL queries and joins for reporting
+- Mature tooling and wide team expertise
+- Better suited for structured, relational data
+
+MongoDB Considerations:
+- Document-oriented model offers schema flexibility
+- Horizontal scaling through sharding
+- Faster for high-volume writes
+- JSON-native storage aligns with API responses
+
+Decision Rationale:
+Team selected PostgreSQL based on:
+1. Application requires complex multi-table joins for analytics
+2. Data relationships are well-defined and stable
+3. ACID guarantees critical for financial reporting compliance
+4. Team has stronger PostgreSQL experience
+
+MongoDB deferred for future microservices where schema evolution and horizontal scaling are priorities.
+
+Next Steps:
+- David to draft database schema design by Oct 28
+- Sarah to configure PostgreSQL cluster with replication
+- Marcus to update ORM mappings for PostgreSQL compatibility
+- Proof-of-concept deployment scheduled for Nov 5
     """
 
     print("\nInput Text:")

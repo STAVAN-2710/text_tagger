@@ -373,49 +373,6 @@ class DataCore:
         """
         return get_tag(word, i, self.exclude)
 
-    def build_candidate(self, candidate_string):
-        """
-        Build a candidate ComposedWord from a string.
-
-        This function processes a candidate string by tokenizing it, tagging each word,
-        and creating a ComposedWord object from the resulting terms. It's used to
-        convert external strings into the internal candidate representation.
-
-        Args:
-            candidate_string (str): String to convert to a keyword candidate
-
-        Returns:
-            ComposedWord: A composed word object representing the candidate
-        """
-
-        # Tokenize the candidate string
-        tokenized_words = [
-            w
-            for w in split_contractions(web_tokenizer(candidate_string.lower()))
-            if not (w.startswith("'") and len(w) > 1) and len(w) > 0
-        ]
-
-        # Process each word in the candidate
-        candidate_terms = []
-        for index, word in enumerate(tokenized_words):
-            # Get the tag and term object
-            tag = self.get_tag(word, index)
-            term_obj = self.get_term(word, save_non_seen=False)
-
-            # Skip terms with zero term frequency (not in the original document)
-            if term_obj.tf == 0:
-                term_obj = None
-
-            candidate_terms.append((tag, word, term_obj))
-
-        # Check if the candidate has any valid terms
-        if not any(term[2] for term in candidate_terms):
-            # Return an invalid composed word if no valid terms
-            return ComposedWord(None)
-
-        # Create and return the composed word
-        return ComposedWord(candidate_terms)
-
     def build_single_terms_features(self, features=None):
         """
         Calculates and updates statistical features for all single terms in the text.

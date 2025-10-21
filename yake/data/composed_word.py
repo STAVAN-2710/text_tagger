@@ -8,7 +8,6 @@ which phrases make good keyword candidates.
 """
 
 import numpy as np
-import jellyfish
 from .utils import STOPWORD_WEIGHT
 
 
@@ -18,7 +17,7 @@ class ComposedWord:
 
     This class stores and aggregates information about multi-word keyword candidates,
     calculating combined scores from the properties of their constituent terms.
-    It tracks statistics like term frequency, integrity, and provides methods to
+    It tracks statistics like term frequency and provides methods to
     validate whether a phrase is likely to be a good keyword.
 
     Attributes:
@@ -45,7 +44,6 @@ class ComposedWord:
                 "unique_kw": "",
                 "size": 0,
                 "terms": [],
-                "integrity": 0.0,
             }
             return
 
@@ -59,7 +57,6 @@ class ComposedWord:
         self.data["size"] = len(terms)
         self.data["terms"] = [w[2] for w in terms if w[2] is not None]
         self.data["tf"] = 0.0
-        self.data["integrity"] = 1.0
         self.data["h"] = 1.0
 
         # Check if the candidate starts or ends with stopwords
@@ -110,11 +107,6 @@ class ComposedWord:
             value (float): The new term frequency value
         """
         self.data["tf"] = value
-
-    @property
-    def integrity(self):
-        """Get the integrity score indicating phrase coherence."""
-        return self.data["integrity"]
 
     @property
     def h(self):
@@ -201,114 +193,6 @@ class ComposedWord:
         # Return the three aggregated values
         return (sum_f, prod_f, prod_f / (sum_f + 1))
 
-    def build_features(self, params):
-        """
-        Build features for machine learning or evaluation.
-
-        Generates feature vectors that can be used for model training,
-        evaluation, or visualization of keyword properties.
-
-        Args:
-            params (dict): Parameters for feature generation including:
-                - features (list): Features to include
-                - _stopword (list): Whether to consider stopwords [True, False]
-                - doc_id (str): Document identifier
-                - keys (list): Gold standard keywords for evaluation
-                - rel (bool): Whether to include relevance feature
-                - rel_approx (bool): Whether to include approximate relevance
-                - is_virtual (bool): Whether this is a virtual candidate
-
-        Returns:
-            tuple: (features_list, column_names, matched_gold_standards)
-        """
-        # Get feature configuration from parameters
-        features = params.get(
-            "features", ["wfreq", "wrel", "tf", "wcase", "wpos", "wspread"]
-        )
-        _stopword = params.get("_stopword", [True, False])
-
-        # Use defaults if not provided
-        if features is None:
-            features = ["wfreq", "wrel", "tf", "wcase", "wpos", "wspread"]
-        if _stopword is None:
-            _stopword = [True, False]
-
-        # Initialize feature collection
-        columns = []
-        features_cand = []
-        seen = set()
-
-        # Add document identifier if provided
-        if params.get("doc_id") is not None:
-            columns.append("doc_id")
-            features_cand.append(params["doc_id"])
-
-        # Add gold standard match features if keys are provided
-        if params.get("keys") is not None:
-            # Exact match feature
-            if params.get("rel", True):
-                columns.append("rel")
-                if self.unique_kw in params["keys"] or params.get("is_virtual", False):
-                    features_cand.append(1)
-                    seen.add(self.unique_kw)
-                else:
-                    features_cand.append(0)
-
-            # Approximate match feature using string similarity
-            if params.get("rel_approx", True):
-                columns.append("rel_approx")
-                max_gold_ = ("", 0.0)
-                for gold_key in params["keys"]:
-                    # Calculate normalized Levenshtein similarity
-                    dist = 1.0 - jellyfish.levenshtein_distance(
-                        gold_key,
-                        self.unique_kw,
-                    ) / max(len(gold_key), len(self.unique_kw))
-                    max_gold_ = (gold_key, dist)
-                features_cand.append(max_gold_[1])
-                features_cand.append(max_gold_[1])
-
-        # Add basic candidate properties
-        columns.append("kw")
-        features_cand.append(self.unique_kw)
-        columns.append("h")
-        features_cand.append(self.h)
-        columns.append("tf")
-        features_cand.append(self.tf)
-        columns.append("size")
-        features_cand.append(self.size)
-        columns.append("is_virtual")
-        columns.append("is_virtual")
-        features_cand.append(int(params.get("is_virtual", False)))
-
-        # Add all requested features with different stopword handling
-        for feature_name in features:
-            for discart_stopword in _stopword:
-                # Calculate aggregate feature metrics
-                (f_sum, f_prod, f_sum_prod) = self.get_composed_feature(
-                    feature_name, discart_stopword=discart_stopword
-                )
-
-                # Add sum feature
-                columns.append(
-                    f"{'n' if discart_stopword else ''}s_sum_K{feature_name}"
-                )
-                features_cand.append(f_sum)
-
-                # Add product feature
-                columns.append(
-                    f"{'n' if discart_stopword else ''}s_prod_K{feature_name}"
-                )
-                features_cand.append(f_prod)
-
-                # Add sum-product feature
-                columns.append(
-                    f"{'n' if discart_stopword else ''}s_sum_prod_K{feature_name}"
-                )
-                features_cand.append(f_sum_prod)
-
-        return (features_cand, columns, seen)
-
     def update_h(self, features=None, is_virtual=False):
         """
         Update the term's score based on its constituent terms.
@@ -366,65 +250,6 @@ class ComposedWord:
                 elif STOPWORD_WEIGHT == "none":
                     # None: ignore stopwords entirely
                     pass
-
-        # Determine term frequency to use in scoring
-        tf_used = 1.0
-        if features is None or "KPF" in features:
-            tf_used = self.tf
-
-        # For virtual candidates, use mean frequency of constituent terms
-        if is_virtual:
-            tf_used = np.mean([term_obj.tf for term_obj in self.terms])
-
-        # Calculate final score (lower is better)
-        self.h = prod_h / ((sum_h + 1) * tf_used)
-
-    def update_h_old(self, features=None, is_virtual=False):
-        """
-        Legacy method for updating the term's score.
-
-        Preserved for backward compatibility but uses a slightly different
-        approach to calculate scores.
-
-        Args:
-            features (list, optional): Specific features to use for scoring
-            is_virtual (bool): Whether this is a virtual candidate not in text
-        """
-        sum_h = 0.0
-        prod_h = 1.0
-
-        # Process each term in the phrase
-        for t, term_base in enumerate(self.terms):
-            # Skip terms with zero frequency in virtual candidates
-            if is_virtual and term_base.tf == 0:
-                continue
-
-            # Handle stopwords with probability-based weighting
-            if term_base.stopword:
-                # Calculate probability of co-occurrence with previous term
-                prob_t1 = 0.0
-                if term_base.g.has_edge(self.terms[t - 1].id, self.terms[t].id):
-                    prob_t1 = (
-                        term_base.g[self.terms[t - 1].id][self.terms[t].id]["tf"]
-                        / self.terms[t - 1].tf
-                    )
-
-                # Calculate probability of co-occurrence with next term
-                prob_t2 = 0.0
-                if term_base.g.has_edge(self.terms[t].id, self.terms[t + 1].id):
-                    prob_t2 = (
-                        term_base.g[self.terms[t].id][self.terms[t + 1].id]["tf"]
-                        / self.terms[t + 1].tf
-                    )
-
-                # Update scores based on combined probability
-                prob = prob_t1 * prob_t2
-                prod_h *= 1 + (1 - prob)
-                sum_h -= 1 - prob
-            else:
-                # Handle normal words directly
-                sum_h += term_base.h
-                prod_h *= term_base.h
 
         # Determine term frequency to use in scoring
         tf_used = 1.0

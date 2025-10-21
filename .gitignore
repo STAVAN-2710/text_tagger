@@ -23,3 +23,6 @@ model.pkl
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs and databases
+test_files/
