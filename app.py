@@ -11,9 +11,9 @@ from yake.data import DataCore
 from feedback_manager import FeedbackManager
 
 
-def extract_keywords_with_features(text, lan="en", n=2, top=15):
+def extract_keywords_with_features(text, lan="en", n=3, top=15, dedup_lim=0.9):
     """Extract keywords with YAKE features."""
-    kw_extractor = KeywordExtractor(lan=lan, n=n, top=top, dedup_lim=0.9)
+    kw_extractor = KeywordExtractor(lan=lan, n=n, top=top, dedup_lim=dedup_lim)
 
     # Create data core
     core_config = {"windows_size": 1, "n": n}
@@ -27,13 +27,35 @@ def extract_keywords_with_features(text, lan="en", n=2, top=15):
     dc.build_single_terms_features(features=None)
     dc.build_mult_terms_features(features=None)
 
-    # Get valid candidates
+    # Get valid candidates and sort by score
     candidates = [cc for cc in dc.candidates.values() if cc.is_valid()]
-    candidates_sorted = sorted(candidates, key=lambda c: c.h)[:top]
+    candidates_sorted = sorted(candidates, key=lambda c: c.h)
+
+    # Perform deduplication if needed
+    deduplicated_cands = []
+    if dedup_lim >= 1.0:
+        # No deduplication
+        deduplicated_cands = candidates_sorted[:top]
+    else:
+        # Deduplication using Levenshtein distance
+        for cand in candidates_sorted:
+            should_add = True
+            for existing_cand in deduplicated_cands:
+                # Calculate similarity
+                similarity = kw_extractor.dedup_function(cand.unique_kw, existing_cand.unique_kw)
+                if similarity > dedup_lim:
+                    should_add = False
+                    break
+
+            if should_add:
+                deduplicated_cands.append(cand)
+
+            if len(deduplicated_cands) == top:
+                break
 
     # Extract features
     results = []
-    for cand in candidates_sorted:
+    for cand in deduplicated_cands:
         keyword_data = {
             'keyword': cand.kw,
             'yake_score': cand.h,
@@ -106,8 +128,9 @@ def main():
     # Configuration
     st.sidebar.header("⚙️ Settings")
     language = st.sidebar.selectbox("Language:", ["en", "hi"], index=0)
-    n_grams = st.sidebar.slider("Max n-gram size:", 1, 3, 2)
+    n_grams = st.sidebar.slider("Max n-gram size:", 1, 5, 3)
     top_k = st.sidebar.slider("Keywords to extract:", 5, 30, 15)
+    dedup_lim = st.sidebar.slider("Deduplication threshold:", 0.0, 1.0, 0.9, 0.1)
 
     # Feedback stats
     st.sidebar.header("📊 Statistics")
@@ -137,7 +160,7 @@ def main():
         if st.button("🔍 Extract Keywords", type="primary"):
             with st.spinner("Extracting keywords..."):
                 keywords_data = extract_keywords_with_features(
-                    text, lan=language, n=n_grams, top=top_k
+                    text, lan=language, n=n_grams, top=top_k, dedup_lim=dedup_lim
                 )
                 st.session_state.keywords_data = keywords_data
                 st.session_state.doc_name = selected_file

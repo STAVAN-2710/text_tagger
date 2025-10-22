@@ -13,38 +13,22 @@ def main():
 
     # Sample text
     text = """
-    Architecture Review Meeting - Database Selection
-Date: October 21, 2025
+    Artificial Intelligence and Machine Learning Revolution
 
-Discussion Summary:
-Team evaluated PostgreSQL versus MongoDB for the new analytics platform. Key debate centered on data model flexibility versus transactional integrity.
+Artificial intelligence has transformed the technology landscape in unprecedented ways. Machine learning algorithms now power recommendation systems, natural language processing applications, and computer vision tasks across industries.
 
-PostgreSQL Advantages:
-- Strong ACID compliance ensures data consistency
-- Complex SQL queries and joins for reporting
-- Mature tooling and wide team expertise
-- Better suited for structured, relational data
+Deep learning, a subset of machine learning, uses neural networks with multiple layers to extract hierarchical features from data. Convolutional neural networks excel at image recognition, while recurrent neural networks handle sequential data processing effectively.
 
-MongoDB Considerations:
-- Document-oriented model offers schema flexibility
-- Horizontal scaling through sharding
-- Faster for high-volume writes
-- JSON-native storage aligns with API responses
+The transformer architecture revolutionized natural language processing. Models like GPT and BERT demonstrate remarkable performance in text generation, sentiment analysis, and question answering tasks. These models use attention mechanisms to capture contextual relationships between words.
 
-Decision Rationale:
-Team selected PostgreSQL based on:
-1. Application requires complex multi-table joins for analytics
-2. Data relationships are well-defined and stable
-3. ACID guarantees critical for financial reporting compliance
-4. Team has stronger PostgreSQL experience
+Training deep neural networks requires substantial computational resources. Graphics processing units accelerate the matrix operations essential for backpropagation. Distributed training across multiple GPUs enables researchers to train larger models on massive datasets.
 
-MongoDB deferred for future microservices where schema evolution and horizontal scaling are priorities.
+Reinforcement learning presents another paradigm where agents learn optimal policies through interaction with environments. Deep reinforcement learning combines neural networks with reinforcement learning principles, achieving superhuman performance in games like chess and Go.
 
-Next Steps:
-- David to draft database schema design by Oct 28
-- Sarah to configure PostgreSQL cluster with replication
-- Marcus to update ORM mappings for PostgreSQL compatibility
-- Proof-of-concept deployment scheduled for Nov 5
+Transfer learning leverages pre-trained models to solve new tasks with limited data. Fine-tuning allows practitioners to adapt large language models to domain-specific applications without training from scratch.
+
+Ethical considerations surrounding artificial intelligence include algorithmic bias, privacy concerns, and transparency requirements. Researchers emphasize responsible AI development to ensure fairness and accountability in automated decision-making systems.
+
     """
 
     print("\nInput Text:")
@@ -56,9 +40,9 @@ Next Steps:
     print("\nInitializing YAKE extractor...")
     kw_extractor = KeywordExtractor(
         lan="en",           # English language
-        n=2,                # Max n-gram size (1, 2 words)
-        dedup_lim=0.9,      # Deduplication threshold
-        top=10              # Top 10 keywords
+        n=5,                # Max n-gram size (1, 2 words)
+        dedup_lim=0.6,      # Deduplication threshold
+        top=15               # Top 15 keywords
     )
 
     # Extract keywords

@@ -147,7 +147,7 @@ class ComposedWord:
         Check if this candidate is a valid keyword phrase.
 
         A valid keyword phrase doesn't contain unusual characters or digits,
-        and doesn't start or end with stopwords.
+        and doesn't contain any stopwords.
 
         Returns:
             bool: True if this is a valid keyword candidate, False otherwise
@@ -157,8 +157,9 @@ class ComposedWord:
         for tag in self.tags:
             is_valid = is_valid or ("u" not in tag and "d" not in tag)
 
-        # A valid keyword cannot start or end with a stopword
-        return is_valid and not self.start_or_end_stopwords
+        # A valid keyword cannot contain any stopwords
+        has_stopword = any(term.stopword for term in self.terms)
+        return is_valid and not has_stopword
 
     def get_composed_feature(self, feature_name, discart_stopword=True):
         """
