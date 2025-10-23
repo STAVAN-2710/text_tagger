@@ -153,6 +153,3 @@ Tests cover:
 - Python ≥3.11
 - Dependencies managed via Poetry (see `pyproject.toml`)
 
-## License
-
-MIT

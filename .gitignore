@@ -11,10 +11,6 @@ venv/
 env/
 ENV/
 
-# Generated files
-feedback.csv
-model.pkl
-
 # IDE
 .vscode/
 .idea/
