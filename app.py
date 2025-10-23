@@ -1,7 +1,4 @@
-"""
-Streamlit UI for keyword extraction and feedback collection.
-Simple, clean interface following CLAUDE.md principles.
-"""
+"""Streamlit UI for keyword extraction and feedback collection."""
 
 import streamlit as st
 import os

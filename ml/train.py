@@ -1,7 +1,4 @@
-"""
-Model training module for keyword classification.
-Simple, clean training logic following CLAUDE.md principles.
-"""
+"""Model training module for keyword classification."""
 
 import pandas as pd
 import joblib

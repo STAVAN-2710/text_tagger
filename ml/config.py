@@ -1,33 +1,23 @@
-"""
-ML configuration for keyword classification.
-Simple, clean configuration following CLAUDE.md principles.
-"""
+"""ML configuration for keyword classification."""
 
-# Feature columns from feedback CSV
+MODEL_DIR = 'ml/models'
+FEEDBACK_CSV = 'data/feedback.csv'
+TRAINING_THRESHOLD = 10
+DEFAULT_ALPHA = 0.5
+
 FEATURE_COLUMNS = [
-    'length',
+    'size',
     'yake_score',
-    'f1_wfreq',
-    'f2_wcase',
-    'f3_wpos',
-    'f4_wrel',
-    'f5_wspread'
+    'wfreq',
+    'wcase',
+    'wpos',
+    'wrel',
+    'wspread'
 ]
 
-# Random Forest hyperparameters
 MODEL_PARAMS = {
     'n_estimators': 100,
     'max_depth': 10,
     'min_samples_split': 5,
-    'min_samples_leaf': 2,
-    'random_state': 42,
-    'n_jobs': -1
+    'random_state': 42
 }
-
-# Scoring configuration
-DEFAULT_ALPHA = 0.7  # 70% YAKE, 30% ML
-TRAINING_THRESHOLD = 50  # Minimum feedbacks needed to train
-
-# Paths
-FEEDBACK_CSV = 'data/feedback.csv'
-MODEL_DIR = 'ml/models'

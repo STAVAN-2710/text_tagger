@@ -1,7 +1,4 @@
-"""
-Simple feedback manager for storing keyword annotations.
-Follows CLAUDE.md: simple, clean, manageable code.
-"""
+"""Feedback manager for storing keyword annotations."""
 
 import csv
 import os

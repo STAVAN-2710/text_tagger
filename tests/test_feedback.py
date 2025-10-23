@@ -1,7 +1,4 @@
-"""
-Tests for feedback storage and retrieval.
-Validates FeedbackManager functionality.
-"""
+"""Tests for feedback storage and retrieval."""
 
 import pytest
 from feedback_manager import FeedbackManager

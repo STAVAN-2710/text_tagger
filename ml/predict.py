@@ -1,7 +1,4 @@
-"""
-Prediction and scoring utilities for keyword classification.
-Simple, clean prediction logic following CLAUDE.md principles.
-"""
+"""Prediction and scoring utilities for keyword classification."""
 
 import numpy as np
 import joblib

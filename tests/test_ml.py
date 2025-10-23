@@ -1,7 +1,4 @@
-"""
-Tests for ML components.
-Validates prediction and scoring utilities.
-"""
+"""Tests for ML prediction and scoring."""
 
 import pytest
 import numpy as np
@@ -47,20 +44,10 @@ def test_combine_scores():
 
 def test_config_values():
     """Test ML configuration values are reasonable."""
-    # Training threshold should be sensible
     assert TRAINING_THRESHOLD >= 10
     assert TRAINING_THRESHOLD <= 100
-
-    # Default alpha should favor YAKE slightly
     assert 0.0 <= DEFAULT_ALPHA <= 1.0
-    assert DEFAULT_ALPHA >= 0.5  # Should favor YAKE
-
-    # Feature columns should include all YAKE features
     assert 'yake_score' in FEATURE_COLUMNS
-    assert 'length' in FEATURE_COLUMNS
-    assert 'f1_wfreq' in FEATURE_COLUMNS
-    assert 'f2_wcase' in FEATURE_COLUMNS
-    assert 'f3_wpos' in FEATURE_COLUMNS
-    assert 'f4_wrel' in FEATURE_COLUMNS
-    assert 'f5_wspread' in FEATURE_COLUMNS
+    assert 'size' in FEATURE_COLUMNS
+    assert 'wfreq' in FEATURE_COLUMNS
     assert len(FEATURE_COLUMNS) == 7

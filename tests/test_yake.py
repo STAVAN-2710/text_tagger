@@ -1,7 +1,4 @@
-"""
-Tests for YAKE keyword extraction.
-Validates core extraction functionality.
-"""
+"""Tests for YAKE keyword extraction."""
 
 from yake import KeywordExtractor
 from yake.scorer import extract_keywords_with_scores
