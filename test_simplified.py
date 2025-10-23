@@ -1,14 +1,14 @@
 """
-Simple test script to verify YAKE implementation is working.
-Run with: poetry run python test_yake_simple.py
+Test script for simplified YAKE implementation.
+Run with: poetry run python test_simplified.py
 """
 
-from yake.core.yake import KeywordExtractor
+from yake_simplified import KeywordExtractor
 
 
 def main():
     print("=" * 80)
-    print("YAKE KEYWORD EXTRACTION TEST")
+    print("SIMPLIFIED YAKE KEYWORD EXTRACTION TEST")
     print("=" * 80)
 
     # Sample text
@@ -28,20 +28,18 @@ Reinforcement learning presents another paradigm where agents learn optimal poli
 Transfer learning leverages pre-trained models to solve new tasks with limited data. Fine-tuning allows practitioners to adapt large language models to domain-specific applications without training from scratch.
 
 Ethical considerations surrounding artificial intelligence include algorithmic bias, privacy concerns, and transparency requirements. Researchers emphasize responsible AI development to ensure fairness and accountability in automated decision-making systems.
-
     """
 
     print("\nInput Text:")
     print("-" * 80)
-    print(text.strip())
+    print(text.strip()[:200] + "...")
     print()
 
     # Initialize YAKE extractor
-    print("\nInitializing YAKE extractor...")
+    print("\nInitializing simplified YAKE extractor...")
     kw_extractor = KeywordExtractor(
-        lan="en",           # English language
-        n=5,                # Max n-gram size (1, 2 words)
-        dedup_lim=0.6,      # Deduplication threshold
+        n=1,                # Max n-gram size
+        dedup_threshold=0.6,  # Deduplication threshold
         top=15               # Top 15 keywords
     )
 
@@ -57,7 +55,7 @@ Ethical considerations surrounding artificial intelligence include algorithmic b
         print("No keywords found!")
     else:
         for i, (keyword, score) in enumerate(keywords, 1):
-            print(f"{i:2}. {keyword:35} (score: {score:.4f})")
+            print(f"{i:2}. {keyword:40} (score: {score:.4f})")
 
     print("\n" + "=" * 80)
     print("✓ Test completed successfully!")

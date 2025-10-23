@@ -6,8 +6,8 @@ Simple, clean interface following CLAUDE.md principles.
 import streamlit as st
 import os
 from pathlib import Path
-from yake.core.yake import KeywordExtractor
-from yake.data import DataCore
+from yake import KeywordExtractor
+from yake.scorer import extract_keywords_with_scores
 from feedback_manager import FeedbackManager
 from ml.predict import get_predictions_with_scores
 from ml.train import train_model
@@ -15,71 +15,94 @@ from ml.config import TRAINING_THRESHOLD, DEFAULT_ALPHA
 
 
 def extract_keywords_with_features(text, lan="en", n=3, top=15, dedup_lim=0.9):
-    """Extract keywords with YAKE features."""
-    kw_extractor = KeywordExtractor(lan=lan, n=n, top=top, dedup_lim=dedup_lim)
+    """Extract keywords with YAKE features using simplified implementation."""
+    # Determine stopwords file based on language
+    if lan == "hi":
+        import os
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        stopwords_file = os.path.join(dir_path, 'yake', 'stopwords_hi.txt')
+    else:
+        stopwords_file = None  # Uses default English
 
-    # Create data core
-    core_config = {"windows_size": 1, "n": n}
-    dc = DataCore(
-        text=text.replace("\n", " "),
-        stopword_set=kw_extractor.stopword_set,
-        config=core_config
+    # Initialize extractor
+    kw_extractor = KeywordExtractor(
+        stopwords_file=stopwords_file,
+        n=n,
+        top=top,
+        dedup_threshold=dedup_lim
     )
 
-    # Build features
-    dc.build_single_terms_features(features=None)
-    dc.build_mult_terms_features(features=None)
+    # Extract keywords using the extractor (applies deduplication)
+    extracted_keywords = kw_extractor.extract_keywords(text)
 
-    # Get valid candidates and sort by score
-    candidates = [cc for cc in dc.candidates.values() if cc.is_valid()]
-    candidates_sorted = sorted(candidates, key=lambda c: c.h)
+    # Get detailed results from scorer for feature extraction
+    result = extract_keywords_with_scores(
+        text.replace("\n", " "),
+        kw_extractor.stopwords,
+        n_grams=n,
+        window_size=1
+    )
 
-    # Perform deduplication if needed
-    deduplicated_cands = []
-    if dedup_lim >= 1.0:
-        # No deduplication
-        deduplicated_cands = candidates_sorted[:top]
-    else:
-        # Deduplication using Levenshtein distance
-        for cand in candidates_sorted:
-            should_add = True
-            for existing_cand in deduplicated_cands:
-                # Calculate similarity
-                similarity = kw_extractor.dedup_function(cand.unique_kw, existing_cand.unique_kw)
-                if similarity > dedup_lim:
-                    should_add = False
-                    break
+    terms = result['terms']
 
-            if should_add:
-                deduplicated_cands.append(cand)
-
-            if len(deduplicated_cands) == top:
-                break
-
-    # Extract features
+    # Extract features for each candidate
     results = []
-    for cand in deduplicated_cands:
+    for keyword, score in extracted_keywords:
+        # Get the words in this keyword
+        words = keyword.lower().split()
+
         keyword_data = {
-            'keyword': cand.kw,
-            'yake_score': cand.h,
-            'size': cand.size,
+            'keyword': keyword,
+            'yake_score': score,
+            'size': len(words),
         }
 
-        # Aggregate features from terms
-        if cand.size == 1 and len(cand.terms) > 0:
-            term = cand.terms[0]
-            keyword_data['wfreq'] = term.wfreq
-            keyword_data['wcase'] = term.wcase
-            keyword_data['wpos'] = term.wpos
-            keyword_data['wrel'] = term.wrel
-            keyword_data['wspread'] = term.data['wspread']
+        # For single-word keywords, get features directly
+        if len(words) == 1:
+            word = words[0]
+            # Handle plural normalization
+            if word.endswith('s') and len(word) > 3:
+                word_normalized = word[:-1]
+            else:
+                word_normalized = word
+
+            if word_normalized in terms:
+                term = terms[word_normalized]
+                keyword_data['wfreq'] = term.get('wfreq', 0)
+                keyword_data['wcase'] = term.get('wcase', 0)
+                keyword_data['wpos'] = term.get('wpos', 0)
+                keyword_data['wrel'] = term.get('wrel', 0)
+                keyword_data['wspread'] = term.get('wspread', 0)
+            else:
+                # Fallback values
+                keyword_data['wfreq'] = 0
+                keyword_data['wcase'] = 0
+                keyword_data['wpos'] = 0
+                keyword_data['wrel'] = 0
+                keyword_data['wspread'] = 0
+
+        # For multi-word keywords, aggregate features from constituent terms
         else:
-            # Multi-word: average non-stopword features
-            wfreq_vals = [t.wfreq for t in cand.terms if not t.stopword]
-            wcase_vals = [t.wcase for t in cand.terms if not t.stopword]
-            wpos_vals = [t.wpos for t in cand.terms if not t.stopword]
-            wrel_vals = [t.wrel for t in cand.terms if not t.stopword]
-            wspread_vals = [t.data['wspread'] for t in cand.terms if not t.stopword]
+            wfreq_vals = []
+            wcase_vals = []
+            wpos_vals = []
+            wrel_vals = []
+            wspread_vals = []
+
+            for word in words:
+                # Handle plural normalization
+                if word.endswith('s') and len(word) > 3:
+                    word_normalized = word[:-1]
+                else:
+                    word_normalized = word
+
+                if word_normalized in terms and not terms[word_normalized].get('is_stopword', False):
+                    term = terms[word_normalized]
+                    wfreq_vals.append(term.get('wfreq', 0))
+                    wcase_vals.append(term.get('wcase', 0))
+                    wpos_vals.append(term.get('wpos', 0))
+                    wrel_vals.append(term.get('wrel', 0))
+                    wspread_vals.append(term.get('wspread', 0))
 
             keyword_data['wfreq'] = sum(wfreq_vals) / len(wfreq_vals) if wfreq_vals else 0
             keyword_data['wcase'] = sum(wcase_vals) / len(wcase_vals) if wcase_vals else 0

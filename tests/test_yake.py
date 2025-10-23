@@ -3,7 +3,46 @@ Tests for YAKE keyword extraction.
 Validates core extraction functionality.
 """
 
-from cli.extract import extract_keywords_from_text
+from yake import KeywordExtractor
+from yake.scorer import extract_keywords_with_scores
+
+
+def extract_keywords_from_text(text, language="en", n=3, top=15, dedup_lim=0.9):
+    """Extract keywords with features for testing."""
+    extractor = KeywordExtractor(n=n, top=top, dedup_threshold=dedup_lim)
+    extracted_keywords = extractor.extract_keywords(text)
+
+    # Get features from scorer
+    result = extract_keywords_with_scores(
+        text.replace("\n", " "),
+        extractor.stopwords,
+        n_grams=n,
+        window_size=1
+    )
+
+    terms = result['terms']
+
+    # Build keyword data with features
+    keywords_data = []
+    for keyword, score in extracted_keywords:
+        kw_data = {'keyword': keyword, 'yake_score': score, 'size': len(keyword.split())}
+
+        # Aggregate features for multi-word keywords
+        words = keyword.split()
+        feature_sums = {'wfreq': 0, 'wcase': 0, 'wpos': 0, 'wrel': 0, 'wspread': 0}
+
+        for word in words:
+            if word in terms:
+                for feat in feature_sums:
+                    feature_sums[feat] += terms[word].get(feat, 0)
+
+        # Average features
+        for feat in feature_sums:
+            kw_data[feat] = feature_sums[feat] / len(words) if words else 0
+
+        keywords_data.append(kw_data)
+
+    return keywords_data
 
 
 def test_extract_keywords_basic():
