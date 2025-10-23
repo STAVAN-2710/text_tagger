@@ -1,0 +1,20 @@
+Authentication Guide
+
+Authentication verifies user identity in applications. Common methods include:
+
+OAuth 2.0: Industry standard for authorization
+- Authorization Code Flow: Most secure for web apps
+- Client Credentials: For machine-to-machine auth
+- Implicit Flow: Deprecated for security reasons
+
+JWT (JSON Web Tokens): Compact token format for secure data transmission
+- Header: Algorithm and token type
+- Payload: User claims and data
+- Signature: Verification hash
+
+Best practices:
+- Always use HTTPS
+- Implement Multi-Factor Authentication (MFA)
+- Use secure password hashing (bcrypt, Argon2)
+- Set proper session timeouts
+- Never store sensitive tokens in localStorage

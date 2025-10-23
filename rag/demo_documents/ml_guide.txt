@@ -1,0 +1,13 @@
+Machine Learning Guide
+
+Machine learning is a method of teaching computers to learn from data. It involves training algorithms on datasets to recognize patterns and make predictions.
+
+Key Concepts:
+- Supervised Learning: Training with labeled data (classification, regression)
+- Unsupervised Learning: Finding patterns in unlabeled data (clustering)
+- Neural Networks: Deep learning models inspired by the brain
+- Random Forests: Ensemble method using multiple decision trees
+- Model Training: Process of fitting algorithms to data
+- Cross-Validation: Technique to prevent overfitting
+
+Common metrics include accuracy, precision, recall, and F1 score.
