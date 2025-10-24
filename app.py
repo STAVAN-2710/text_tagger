@@ -142,7 +142,7 @@ def main():
                     with st.spinner("Training model..."):
                         result = train_model()
                         if result:
-                            st.success(f"Trained! Accuracy: {result['cv_accuracy']:.1%}")
+                            st.success("Model trained successfully!")
                         else:
                             st.error("Training failed")
 

@@ -11,6 +11,8 @@ The final scoring blends YAKE's statistical analysis with learned patterns from 
 final_score = alpha * yake_score + (1-alpha) * ml_probability
 ```
 
+![System Architecture](images/sys_architecture.png)
+
 ## Quick Start
 
 ### Installation
@@ -60,6 +62,8 @@ YAKE scores keywords using five statistical features:
 
 Lower YAKE scores indicate better keywords. Multi-word phrases aggregate features from constituent terms.
 
+![YAKE Algorithm](images/yake_algo.png)
+
 ### Feedback Loop
 
 1. You review extracted keywords and mark them as accepted or rejected
@@ -71,6 +75,8 @@ Lower YAKE scores indicate better keywords. Multi-word phrases aggregate feature
 ### RAG Enhancement (Bonus)
 
 The `rag/` folder demonstrates how YAKE keywords can improve retrieval-augmented generation. Keywords extracted from documents are stored as metadata in ChromaDB. When querying, keyword overlap between the query and documents helps surface more relevant results.
+
+![RAG Enhancement](images/rag_enhanced.png)
 
 Run the Jupyter notebook to see it in action:
 ```bash
