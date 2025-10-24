@@ -90,7 +90,7 @@ def collect_feedback(keywords, text, n_grams):
             if response in ['y', 'n']:
                 feedback_data.append(extract_features_for_keyword(kw, score, terms))
                 labels.append(1 if response == 'y' else 0)
-                print(f"   {'✓ Accepted' if response == 'y' else '✗ Rejected'}")
+                print(f"   {'Accepted' if response == 'y' else 'Rejected'}")
                 break
             else:
                 print("   Invalid input. Use y/n/s/q")
@@ -107,7 +107,7 @@ def train_command(args):
         print("ERROR: Insufficient feedback data. Use Streamlit UI to provide feedback.", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Model trained! Accuracy: {result['cv_accuracy']:.2%}")
+    print(f"\nModel trained! Accuracy: {result['cv_accuracy']:.2%}")
 
 def stats_command(args):
     from ml.config import FEEDBACK_CSV

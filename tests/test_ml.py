@@ -48,6 +48,6 @@ def test_config_values():
     assert TRAINING_THRESHOLD <= 100
     assert 0.0 <= DEFAULT_ALPHA <= 1.0
     assert 'yake_score' in FEATURE_COLUMNS
-    assert 'size' in FEATURE_COLUMNS
-    assert 'wfreq' in FEATURE_COLUMNS
+    assert 'length' in FEATURE_COLUMNS
+    assert 'f1_wfreq' in FEATURE_COLUMNS
     assert len(FEATURE_COLUMNS) == 7
