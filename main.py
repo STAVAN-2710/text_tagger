@@ -135,7 +135,7 @@ def main():
     ext.add_argument('-i', '--input', required=True)
     ext.add_argument('-t', '--top', type=int, default=15)
     ext.add_argument('-n', '--ngrams', type=int, default=3)
-    ext.add_argument('-d', '--dedup', type=float, default=0.9)
+    ext.add_argument('-d', '--dedup', type=float, default=0.6)
     ext.add_argument('-f', '--feedback', action='store_true', help='Interactive feedback mode')
     ext.add_argument('--hybrid', action='store_true', help='Use hybrid mode (YAKE + ML)')
     ext.add_argument('--alpha', type=float, default=DEFAULT_ALPHA, help=f'YAKE weight in hybrid mode (default: {DEFAULT_ALPHA})')
