@@ -15,6 +15,11 @@ final_score = alpha * yake_score + (1-alpha) * ml_probability
 
 ## Quick Start
 
+## Demo Video
+
+Watch the demo: [View Demo Video](https://drive.google.com/file/d/16OcxGvmxqacwmDnXXgXJf46Lwigrkeb2/view?usp=sharing)
+
+
 ### Installation
 
 ```bash
