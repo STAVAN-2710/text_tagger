@@ -123,3 +123,60 @@ def load_stopwords(filepath):
     except UnicodeDecodeError:
         with open(filepath, 'r', encoding='ISO-8859-1') as f:
             return set(f.read().lower().split('\n'))
+
+
+def normalize_word(word):
+    """Normalize word by removing plural 's' if applicable."""
+    return word[:-1] if word.endswith('s') and len(word) > 3 else word
+
+
+def extract_features_for_keyword(keyword, yake_score, terms):
+    """Extract YAKE features for a single keyword.
+
+    Args:
+        keyword: The keyword string
+        yake_score: The YAKE score for this keyword
+        terms: Dictionary of term features from extract_keywords_with_scores
+
+    Returns:
+        Dictionary containing keyword and its features
+    """
+    words = keyword.lower().split()
+    features = {
+        'keyword': keyword,
+        'yake_score': yake_score,
+        'size': len(words),
+        'wfreq': 0,
+        'wcase': 0,
+        'wpos': 0,
+        'wrel': 0,
+        'wspread': 0
+    }
+
+    if len(words) == 1:
+        word_normalized = normalize_word(words[0])
+        if word_normalized in terms:
+            term = terms[word_normalized]
+            features.update({
+                'wfreq': term.get('wfreq', 0),
+                'wcase': term.get('wcase', 0),
+                'wpos': term.get('wpos', 0),
+                'wrel': term.get('wrel', 0),
+                'wspread': term.get('wspread', 0)
+            })
+    else:
+        # Aggregate features from non-stopword constituent terms
+        feature_lists = {'wfreq': [], 'wcase': [], 'wpos': [], 'wrel': [], 'wspread': []}
+
+        for word in words:
+            word_normalized = normalize_word(word)
+            if word_normalized in terms and not terms[word_normalized].get('is_stopword', False):
+                term = terms[word_normalized]
+                for feat in feature_lists:
+                    feature_lists[feat].append(term.get(feat, 0))
+
+        # Average the features
+        for feat, values in feature_lists.items():
+            features[feat] = sum(values) / len(values) if values else 0
+
+    return features
