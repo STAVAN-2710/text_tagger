@@ -17,7 +17,7 @@ class KeywordExtractor:
     requiring external corpora or training data.
     """
 
-    def __init__(self, stopwords_file=None, n=3, window_size=1, top=20, dedup_threshold=0.9):
+    def __init__(self, stopwords_file=None, n=3, window_size=1, top=20, dedup_threshold=0.6):
         """
         Initialize the keyword extractor.
 

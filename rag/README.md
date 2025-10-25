@@ -8,6 +8,8 @@ This demo shows how the keyword extraction system can enhance **Retrieval-Augmen
 
 **Solution**: Store YAKE-extracted keywords as metadata in the vector database. Use hybrid search: embeddings + keyword filtering.
 
+![RAG Enhancement](../images/rag_enhanced.png)
+
 ## Interactive Demo
 
 ```bash
