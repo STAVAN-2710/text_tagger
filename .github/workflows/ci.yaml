@@ -35,3 +35,14 @@ jobs:
         poetry run python main.py extract --help
         poetry run python main.py train --help
         poetry run python main.py stats --help
+    
+    - name: Test CLI stats
+      run: poetry run python main.py stats
+    
+    - name: Test CLI extraction
+      run: |
+        echo "Machine learning is AI. Deep learning uses neural networks." > test_input.txt
+        poetry run python main.py extract -i test_input.txt -t 5
+        rm test_input.txt   
+
+    
