@@ -116,7 +116,7 @@ class KeywordExtractor:
         Returns:
             Similarity score between 0 and 1 (1 = identical)
         """
-        # Simple Levenshtein-like ratio
+        
         if str1 == str2:
             return 1.0
 
