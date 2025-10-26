@@ -28,3 +28,10 @@ jobs:
     
     - name: Run tests
       run: poetry run pytest tests/ -v
+
+    - name: Test CLI - Help command
+      run: |
+        poetry run python main.py --help
+        poetry run python main.py extract --help
+        poetry run python main.py train --help
+        poetry run python main.py stats --help
